@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.Text;
 
@@ -38,16 +36,30 @@ namespace SecondMethod
                     case States.Start:
                         PrintDefaultText("Введите ЦЕЛЫЙ порядок могочлена:");
                         polynomFactors = new List<double>();
-                        state = TryGetInt(out maxPower) ? States.EpsilonInput : States.Start;
+                        if (!TryGetInt(out maxPower))
+                        {
+                            PrintErrorText("Порядок должен быть целым числом!");
+                            break;
+                        }
+                        state = States.EpsilonInput;
                         break;
                     case States.EpsilonInput:
                         PrintDefaultText("Введите точность рассчёта:");
-                        state = TryGetDouble(out epsilon) ? States.AllPowerInputs : States.Start;
+                        if (!TryGetDouble(out epsilon))
+                        {
+                            PrintErrorText("Точность должена быть числом!");
+                            break;
+                        }
+                        state = States.AllPowerInputs;
                         break;
                     case States.AllPowerInputs:
                         PrintDefaultText($"Введите коэффициент у x^{maxPower - polynomFactors.Count}");
                         if (!TryGetDouble(out var coefficient))
+                        {
+                            PrintErrorText("Коэффициент должен быть числом!");
                             break;
+                        }
+
                         polynomFactors.Add(coefficient);
                         if (polynomFactors.Count > maxPower)
                         {
@@ -62,7 +74,11 @@ namespace SecondMethod
                         if (!TryGetSegmentValue("правую", out endSegment))
                             break;
                         if (startSegment > endSegment)
+                        {
+                            PrintErrorText("Левая граница должна быть меньше правой!");
                             break;
+                        }
+
                         state = States.SelectMethod;
                         break;
                     case States.SelectMethod:
@@ -83,7 +99,7 @@ namespace SecondMethod
                             out var segmentResult))
                         {
                             PrintErrorText("Нет решения в отрезке");
-                            state = States.SegmentInputs;
+                            state = States.Finished;
                             break;
                         }
 
@@ -95,7 +111,7 @@ namespace SecondMethod
                             out var newtonResult))
                         {
                             PrintErrorText("Нет решения в отрезке");
-                            state = States.SegmentInputs;
+                            state = States.Finished;
                             break;
                         }
 
