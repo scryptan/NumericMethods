@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.Text;
 
 namespace SecondMethod
 {
@@ -162,17 +163,24 @@ namespace SecondMethod
 
             if (!InSegment(coefficients, startFunction, endFunction))
                 return false;
-
+            var i = 0;
+            var resultStr = new StringBuilder();
+            resultStr.AppendLine("--------");
             while (Math.Abs(endFunction - startFunction) > epsilon)
             {
                 result = (startFunction + endFunction) / 2;
+                resultStr.AppendLine($"Итерация: {i}, x: {result}, отрезок [{startFunction}, {endFunction}]");
                 if (InSegment(coefficients, startFunction, result))
                     endFunction = result;
                 else
                     startFunction = result;
+                ++i;
             }
-
-            return true;
+            
+            resultStr.AppendLine("--------");
+            PrintIterationText(resultStr.ToString());
+            
+            return true;    
         }
 
         private static bool TryGetNewtonMethod(List<double> coefficients, double epsilon, double startFunction,
@@ -188,9 +196,19 @@ namespace SecondMethod
             result = 0;
             if (CalculateFunc(coefficients, value) * Diff(coefficients, Diff(coefficients, value)) > 0)
             {
+                var i = 0;
+                var resultStr = new StringBuilder();
                 result = value;
+                resultStr.AppendLine("--------");
                 while (Math.Abs(CalculateFunc(coefficients, result)) > epsilon)
+                {
                     result = result - CalculateFunc(coefficients, result) / Diff(coefficients, result);
+                    resultStr.AppendLine($"Итерация: {i}, x: {result}");
+                    ++i;
+                }
+
+                resultStr.AppendLine("--------");
+                PrintIterationText(resultStr.ToString());
                 return true;
             }
 
@@ -225,28 +243,33 @@ namespace SecondMethod
 
         private static void PrintCorrectText(string text)
         {
-            PrintColorizedText(text, ConsoleColor.Yellow);
+            PrintColorizedText($"{text}\n", ConsoleColor.Yellow);
         }
 
         private static void PrintChooseText(string text)
         {
-            PrintColorizedText(text, ConsoleColor.DarkGreen);
+            PrintColorizedText($"{text}\n", ConsoleColor.DarkGreen);
         }
 
         private static void PrintErrorText(string text)
         {
-            PrintColorizedText(text, ConsoleColor.Red);
+            PrintColorizedText($"{text}\n", ConsoleColor.Red);
         }
 
         private static void PrintDefaultText(string text)
         {
-            PrintColorizedText(text, ConsoleColor.Blue);
+            PrintColorizedText($"{text}\n", ConsoleColor.Blue);
+        }
+
+        private static void PrintIterationText(string text)
+        {
+            PrintColorizedText(text, ConsoleColor.Cyan);
         }
 
         private static void PrintColorizedText(string text, ConsoleColor color)
         {
             Console.ForegroundColor = color;
-            Console.WriteLine(text);
+            Console.Write(text);
             Console.ForegroundColor = ConsoleColor.White;
         }
     }
