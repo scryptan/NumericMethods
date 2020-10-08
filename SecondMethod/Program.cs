@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 
 namespace SecondMethod
@@ -33,16 +35,16 @@ namespace SecondMethod
                 switch (state)
                 {
                     case States.Start:
-                        Console.WriteLine("Введите ЦЕЛЫЙ порядок могочлена:");
+                        PrintDefaultText("Введите ЦЕЛЫЙ порядок могочлена:");
                         polynomFactors = new List<double>();
                         state = TryGetInt(out maxPower) ? States.EpsilonInput : States.Start;
                         break;
                     case States.EpsilonInput:
-                        Console.WriteLine("Введите точность рассчёта:");
+                        PrintDefaultText("Введите точность рассчёта:");
                         state = TryGetDouble(out epsilon) ? States.AllPowerInputs : States.Start;
                         break;
                     case States.AllPowerInputs:
-                        Console.WriteLine($"Введите коэффициент у x^{maxPower - polynomFactors.Count}");
+                        PrintDefaultText($"Введите коэффициент у x^{maxPower - polynomFactors.Count}");
                         if (!TryGetDouble(out var coefficient))
                             break;
                         polynomFactors.Add(coefficient);
@@ -63,9 +65,9 @@ namespace SecondMethod
                         state = States.SelectMethod;
                         break;
                     case States.SelectMethod:
-                        Console.WriteLine("Выберите метод для решения:\n" +
-                                          "(1) Метод деления отрезка пополам\n" +
-                                          "(2) Метод Ньютона");
+                        PrintChooseText("Выберите метод для решения:\n" +
+                                        "(1) Метод деления отрезка пополам\n" +
+                                        "(2) Метод Ньютона");
                         if (!TryGetInt(out var method))
                             break;
                         state = method switch
@@ -79,32 +81,32 @@ namespace SecondMethod
                         if (!TryGetSegmentMethod(polynomFactors, epsilon, startSegment, endSegment,
                             out var segmentResult))
                         {
-                            Console.WriteLine("Нет решения в отрезке");
+                            PrintErrorText("Нет решения в отрезке");
                             state = States.SegmentInputs;
                             break;
                         }
 
-                        Console.WriteLine($"Результат {FormatResult(segmentResult, epsilon)}");
+                        PrintCorrectText($"Результат {FormatResult(segmentResult, epsilon)}");
                         state = States.Finished;
                         break;
                     case States.NewtonMethod:
                         if (!TryGetNewtonMethod(polynomFactors, epsilon, startSegment, endSegment,
                             out var newtonResult))
                         {
-                            Console.WriteLine("Нет решения в отрезке");
+                            PrintErrorText("Нет решения в отрезке");
                             state = States.SegmentInputs;
                             break;
                         }
 
-                        Console.WriteLine($"Результат {FormatResult(newtonResult, epsilon)}");
+                        PrintCorrectText($"Результат {FormatResult(newtonResult, epsilon)}");
                         state = States.Finished;
                         break;
                     case States.Finished:
-                        Console.WriteLine("Что делать дальше:\n" +
-                                          "(1) Решить новую функцию\n" +
-                                          "(2) Решить ещё одним методом\n" +
-                                          "(3) Сменить отрезок\n" +
-                                          "(4) Завершить программу");
+                        PrintChooseText("Что делать дальше:\n" +
+                                        "(1) Решить новую функцию\n" +
+                                        "(2) Решить ещё одним методом\n" +
+                                        "(3) Сменить отрезок\n" +
+                                        "(4) Завершить программу");
                         if (!TryGetInt(out var nextCommand))
                             break;
                         state = nextCommand switch
@@ -117,9 +119,8 @@ namespace SecondMethod
                         };
                         break;
                     case States.Exit:
+                        Environment.Exit(0);
                         return;
-                    default:
-                        throw new ArgumentOutOfRangeException();
                 }
             }
         }
@@ -141,7 +142,7 @@ namespace SecondMethod
 
         private static bool TryGetSegmentValue(string align, out double coefficient)
         {
-            Console.WriteLine($"Введите {align} границу");
+            PrintDefaultText($"Введите {align} границу");
             return TryGetDouble(out coefficient);
         }
 
@@ -220,6 +221,33 @@ namespace SecondMethod
                 epsilonString.Contains('.') ? epsilonString!.Split('.')[0].Length : epsilonString.Length;
             return ((int) (Math.Round(result / Math.Pow(10, epsilonLength - 1)) * Math.Pow(10, epsilonLength - 1)))
                 .ToString();
+        }
+
+        private static void PrintCorrectText(string text)
+        {
+            PrintColorizedText(text, ConsoleColor.Yellow);
+        }
+
+        private static void PrintChooseText(string text)
+        {
+            PrintColorizedText(text, ConsoleColor.DarkGreen);
+        }
+
+        private static void PrintErrorText(string text)
+        {
+            PrintColorizedText(text, ConsoleColor.Red);
+        }
+
+        private static void PrintDefaultText(string text)
+        {
+            PrintColorizedText(text, ConsoleColor.Blue);
+        }
+
+        private static void PrintColorizedText(string text, ConsoleColor color)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
