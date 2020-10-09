@@ -218,7 +218,10 @@ namespace SecondMethod
                 resultStr.AppendLine("--------");
                 while (Math.Abs(CalculateFunc(coefficients, result)) > epsilon)
                 {
-                    result = result - CalculateFunc(coefficients, result) / Diff(coefficients, result);
+                    var denominator = Diff(coefficients, result);
+                    if (denominator == 0)
+                        return false;
+                    result = result - CalculateFunc(coefficients, result) / denominator;
                     resultStr.AppendLine($"Итерация: {i}, x: {result}");
                     ++i;
                 }
