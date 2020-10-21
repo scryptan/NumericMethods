@@ -100,12 +100,17 @@ namespace ThirdMethod
                                         "(2) Завершить программу");
                         if (!TryGetInt(out var nextCommand))
                             break;
-                        state = nextCommand switch
+                        switch (nextCommand)
                         {
-                            1 => States.Start,
-                            2 => States.Exit,
-                            _ => States.Finished
-                        };
+                            case 1:
+                                answer = new List<double>();
+                                LS = new List<List<double>>();
+                                state = States.Start;
+                                break;
+                            case 2:
+                                state = States.Exit;
+                                break;
+                        }
                         break;
                     case States.Exit:
                         Environment.Exit(0);
