@@ -11,7 +11,6 @@ namespace ThirdMethod
         enum States
         {
             Start,
-            MatrixInputs,
             AnswerInput,
             Calculation,
             Finished,
@@ -21,22 +20,32 @@ namespace ThirdMethod
         static void Main()
         {
             var state = States.Start;
-            var LS = new List<List<double>>();
-            var answer = new List<double>();
+            var LS = new List<List<double>>
+            {
+                new List<double> {1, 1, 2, 1},
+                new List<double> {1, 2, 4, 2},
+                new List<double> {2, 3, 8, 4},
+                new List<double> {3, 4, 10, 6},
+            };
+            var answer = new List<double> {0, 1, 2, 3};
             while (true)
             {
                 switch (state)
                 {
                     case States.Start:
-                        PrintDefaultText($"Введите коэффициенты {LS.Count + 1}го уравнения:");
-                        var tempRowRow = Console.ReadLine()!.Split(' ').Select(x => double.Parse(x)).ToList();
-                        if (LS.Count > 0 && tempRowRow.Count != LS.First().Count)
+                        if (LS.Count < 1)
                         {
-                            PrintErrorText($"Элементов в строке должно быть ровно {LS.First().Count}");
-                            break;
+                            PrintDefaultText($"Введите коэффициенты {LS.Count + 1}го уравнения:");
+                            var tempRowRow = Console.ReadLine()!.Split(' ').Select(x => double.Parse(x)).ToList();
+                            if (LS.Count > 0 && tempRowRow.Count != LS.First().Count)
+                            {
+                                PrintErrorText($"Элементов в строке должно быть ровно {LS.First().Count}");
+                                break;
+                            }
+
+                            LS.Add(tempRowRow);
                         }
 
-                        LS.Add(tempRowRow);
                         if (LS.Count >= LS.First().Count)
                         {
                             state = States.AnswerInput;
@@ -46,13 +55,17 @@ namespace ThirdMethod
                         state = States.Start;
                         break;
                     case States.AnswerInput:
-                        PrintDefaultText("Введите строку ответов к уравнениям: ");
-                        answer = Console.ReadLine()!.Split(' ').Select(x => double.Parse(x)).ToList();
-                        if (answer.Count != LS.Count)
+                        if (answer.Count < 1)
                         {
-                            PrintErrorText(
-                                $"Количество ответов не совпадает с количеством уравнений, их должно быть {LS.Count} штук");
-                            break;
+                            PrintDefaultText("Введите строку ответов к уравнениям: ");
+                            answer = Console.ReadLine()!.Split(' ').Select(x => double.Parse(x)).ToList();
+
+                            if (answer.Count != LS.Count)
+                            {
+                                PrintErrorText(
+                                    $"Количество ответов не совпадает с количеством уравнений, их должно быть {LS.Count} штук");
+                                break;
+                            }
                         }
 
                         if (!CanSolveMatrix(LS, answer))
@@ -70,13 +83,14 @@ namespace ThirdMethod
                         MakeTriangleMatrix(LS, answer);
                         answer.Reverse();
                         LS.Reverse();
-                        foreach(var list in LS)
+                        foreach (var list in LS)
                             list.Reverse();
+
                         MakeTriangleMatrix(LS, answer);
                         answer.Reverse();
                         var answerString = new StringBuilder();
-                        for(int i = 0; i < answer.Count; i++)
-                            answerString.Append($"X{i+1} = {answer[i]} ");
+                        for (int i = 0; i < answer.Count; i++)
+                            answerString.Append($"X{i + 1} = {answer[i]} ");
                         PrintCorrectText(answerString.ToString());
                         state = States.Finished;
                         break;
@@ -100,30 +114,44 @@ namespace ThirdMethod
             }
         }
 
+/*
+1 1 2  1    |0
+0 1 2  1    |1
+0 0 1 1/2   |2
+0 0 0 -1    |3
+*/
         private static void MakeTriangleMatrix(List<List<double>> LS, List<double> answers)
         {
-            for (int i = 0; i < LS.Count - 1; ++i)
+            for (int i = 0; i < LS.Count; i++)
             {
-                answers[i] /= LS[i][i];
-                for (int j = i; j < LS[i].Count; ++j)
+                var tempDivide = LS[i][i];
+                answers[i] /= tempDivide;
+                for (int j = i; j < LS.Count; j++)
+                    LS[i][j] = LS[i][j] / tempDivide;
+                for (int j = i + 1; j < LS.Count; j++)
                 {
-                    LS[i][j] = LS[i][j] / LS[i][i];
+                    var temp = new List<double>(LS[i]);
+                    var tempAnswers = new List<double>(answers);
+                    tempAnswers[j] *= -LS[i][i];
+                    for (int k = i; k < LS.Count; k++)
+                        temp[k] *= -LS[j][i];
+                    answers[j] += tempAnswers[j];
+                    for (int k = i; k < LS.Count; k++)
+                        LS[j][k] += temp[k];
+                }
+                
+                for (int g = 0; g < LS.Count; g++)
+                {
+                    for (int f = 0; f < LS.Count; f++)
+                        Console.Write($"{LS[g][f]} ");
+                    Console.Write($"|{answers[g]}");
+                    Console.WriteLine();
                 }
 
-                var tempRow = new List<double>(LS[i]);
-                var tempAnswers = new List<double>(answers);
-
-                tempAnswers[i] *= -LS[i + 1][i];
-                for (int j = 0; j < LS[i].Count; ++j)
-                    tempRow[j] *= -LS[i + 1][i];
-
-                answers[i + 1] += tempAnswers[i];
-                for (int j = 0; j < LS[i].Count; ++j)
-                    LS[i + 1][j] += tempRow[j];
+                Console.WriteLine("_______________________");
             }
 
-            answers[LS.Count - 1] /= LS[LS.Count - 1][LS.Count - 1];
-            LS[LS.Count - 1][LS.Count - 1] /= LS[LS.Count - 1][LS.Count - 1];
+
         }
 
         private static bool CanSolveMatrix(List<List<double>> LS, List<double> answers)
@@ -146,6 +174,7 @@ namespace ThirdMethod
         private static bool TryGetDouble(out double coefficient)
         {
             coefficient = 0;
+
             var input = Console.ReadLine();
             if (input == null)
                 return false;
