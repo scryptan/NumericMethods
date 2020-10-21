@@ -114,14 +114,18 @@ namespace ThirdMethod
             }
         }
 
-/*
-1 1 2  1    |0
-0 1 2  1    |1
-0 0 1 1/2   |2
-0 0 0 -1    |3
-*/
         private static void MakeTriangleMatrix(List<List<double>> LS, List<double> answers)
         {
+
+            for (int g = 0; g < LS.Count; g++)
+            {
+                for (int f = 0; f < LS.Count; f++)
+                    Console.Write($"{LS[g][f]} ");
+                Console.Write($"|{answers[g]}");
+                Console.WriteLine();
+            }
+
+            Console.WriteLine("_______________________");
             for (int i = 0; i < LS.Count; i++)
             {
                 var tempDivide = LS[i][i];
@@ -138,17 +142,17 @@ namespace ThirdMethod
                     answers[j] += tempAnswers;
                     for (int k = i; k < LS.Count; k++)
                         LS[j][k] += temp[k];
-                }
 
-                for (int g = 0; g < LS.Count; g++)
-                {
-                    for (int f = 0; f < LS.Count; f++)
-                        Console.Write($"{LS[g][f]} ");
-                    Console.Write($"|{answers[g]}");
-                    Console.WriteLine();
-                }
+                    for (int g = 0; g < LS.Count; g++)
+                    {
+                        for (int f = 0; f < LS.Count; f++)
+                            Console.Write($"{LS[g][f]} ");
+                        Console.Write($"|{answers[g]}");
+                        Console.WriteLine();
+                    }
 
-                Console.WriteLine("_______________________");
+                    Console.WriteLine("_______________________");
+                }
             }
         }
 
