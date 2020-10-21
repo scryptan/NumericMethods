@@ -131,15 +131,15 @@ namespace ThirdMethod
                 for (int j = i + 1; j < LS.Count; j++)
                 {
                     var temp = new List<double>(LS[i]);
-                    var tempAnswers = new List<double>(answers);
-                    tempAnswers[j] *= -LS[i][i];
+                    var tempAnswers = answers[i];
+                    tempAnswers *= -LS[j][i];
                     for (int k = i; k < LS.Count; k++)
                         temp[k] *= -LS[j][i];
-                    answers[j] += tempAnswers[j];
+                    answers[j] += tempAnswers;
                     for (int k = i; k < LS.Count; k++)
                         LS[j][k] += temp[k];
                 }
-                
+
                 for (int g = 0; g < LS.Count; g++)
                 {
                     for (int f = 0; f < LS.Count; f++)
@@ -150,8 +150,6 @@ namespace ThirdMethod
 
                 Console.WriteLine("_______________________");
             }
-
-
         }
 
         private static bool CanSolveMatrix(List<List<double>> LS, List<double> answers)
