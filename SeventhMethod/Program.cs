@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace SeventhMethod
@@ -7,10 +8,16 @@ namespace SeventhMethod
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Введите знчения x через пробел в одну строку");
-            var xValues = Console.ReadLine().Split(' ').Select(x => double.Parse(x)).ToList();
-            Console.WriteLine("Введите знчения y через пробел в одну строку");
-            var yValues = Console.ReadLine().Split(' ').Select(x => double.Parse(x)).ToList();
+            var test = true;
+            var xValues = new List<double> {0, 2, 4, 6};
+            var yValues = new List<double> {2, -4, -10, -16};
+            if (!xValues.Any() && !yValues.Any() || !test)
+            {
+                Console.WriteLine("Введите знчения x через пробел в одну строку");
+                xValues = Console.ReadLine().Split(' ').Select(x => double.Parse(x)).ToList();
+                Console.WriteLine("Введите знчения y через пробел в одну строку");
+                yValues = Console.ReadLine().Split(' ').Select(x => double.Parse(x)).ToList();
+            }
 
             var sumOfMultiplying = xValues.Select((t, i) => t * yValues[i]).Sum();
             var sumOfXSqr = xValues.Select(x => x * x).Sum();

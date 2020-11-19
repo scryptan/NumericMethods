@@ -8,10 +8,16 @@ namespace FifthMethod
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Введите знчения x через пробел в одну строку");
-            var xValues = Console.ReadLine().Split(' ').Select(x => double.Parse(x)).ToList();
-            Console.WriteLine("Введите знчения y через пробел в одну строку");
-            var yValues = Console.ReadLine().Split(' ').Select(x => double.Parse(x)).ToList();
+            var test = true;
+            var xValues = new List<double> {-2, 1, 2};
+            var yValues = new List<double> {-3, 0, -2};
+            if (!xValues.Any() && !yValues.Any() || !test)
+            {
+                Console.WriteLine("Введите знчения x через пробел в одну строку");
+                xValues = Console.ReadLine().Split(' ').Select(x => double.Parse(x)).ToList();
+                Console.WriteLine("Введите знчения y через пробел в одну строку");
+                yValues = Console.ReadLine().Split(' ').Select(x => double.Parse(x)).ToList();
+            }
             Lagrange(xValues, yValues);
             Newton(xValues, yValues);
         }
